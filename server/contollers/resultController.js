@@ -2,6 +2,8 @@ const Result = require("../models/resultModel");
 const Pupil = require("../models/pupilModel");
 const Exam = require("../models/examModel");
 const Utilities = require("../helpers/utilities");
+const XLSX = require('xlsx');
+const path = require('path');
 
 const addResult = async (req, res) => {
   const { math, eng, kis, sci, sst, pupil_id, exam_id } = req.body;
@@ -61,6 +63,7 @@ const getAllExamResult = (req, res) => {
   //   console.log(id);
 
   Result.find({ exam_id: id })
+    .populate("pupil_id")
     .then((data) => {
       res.status(200).json({ totalKids: data.length, data });
     })
@@ -91,9 +94,9 @@ const sendExamResults = async (req, res) => {
         const title = exam.title;
         const position = index + 1;
         const note =
-          "Be reminded to pay 700 for the breakfast and lunch during the exam period before Thursday. All the best";
+          "Be reminded to pay exam money(100) by tomorrow if you have not.";
         const teacher = "Class Tr : 0796755945";
-        const msg = `${title}\nname: ${name}\nindex: ${index_no} \nMATH ${result.math} ENG ${result.eng} KIS ${result.kis} SCI ${result.sci} SST ${result.sst} \nTOTAL: ${result.total}/500\nPOSITION: ${position}/${results.length}\n${teacher}`;
+        const msg = `${title}\nname: ${name}\nindex: ${index_no} \nMATH ${result.math} ENG ${result.eng} KIS ${result.kis} SCI ${result.sci} SST ${result.sst} \nTOTAL: ${result.total}/500\nPOSITION: ${position}/${results.length}\n\n${teacher}`;
         // console.log(msg);
         //send msg
         const phone = `254${contact.substring(1)}`;
@@ -149,6 +152,28 @@ const updateResult = async (req, res) => {
     });
 };
 
+//bulk upload results
+const bulkUpload = async (req, res) => {
+  try {
+    const filePath = path.join(__dirname, '..', 'uploads', 'exam.xlsx');
+
+    // Read the Excel file
+    const workbook = XLSX.readFile(filePath);
+
+    // Assuming you want to read data from the first sheet (index 0)
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+
+    // Convert the worksheet to an array of objects
+    const data = XLSX.utils.sheet_to_json(worksheet);
+
+    // Send the data as a response
+    res.json(data);
+  } catch (error) {
+    console.error("Error processing Excel file:", error);
+    res.status(500).json({ error: "Error processing Excel file" });
+  }
+};
 //get unfilled exam result
 const getUncompleteResults = async (req, res) => {
   id = req.params.id;
@@ -170,4 +195,5 @@ module.exports = {
   sendExamResults,
   updateResult,
   getUncompleteResults,
+  bulkUpload
 };

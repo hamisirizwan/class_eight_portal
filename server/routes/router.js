@@ -27,6 +27,7 @@ rootRouter.get("/result/:id", resultController.getAllExamResult);
 rootRouter.put("/result/:id", resultController.updateResult);
 rootRouter.get("/sendresult/:id", resultController.sendExamResults);
 rootRouter.get("/result/uncomplete/:id", resultController.getUncompleteResults);
+rootRouter.get("/bulk", resultController.bulkUpload);
 // rootRouter.get("/examresults/:id", resultController.getAllPupilNotRecorded);
 
 //RESET FUNCTION
@@ -39,7 +40,7 @@ rootRouter.get("/result/uncomplete/:id", resultController.getUncompleteResults);
 //       Exam.deleteMany().then(() => {
 //         console.log("all results deleted");
 //         res.send("reset complete");
-//       });
+//       })
 //     });
 //   });
 // });
