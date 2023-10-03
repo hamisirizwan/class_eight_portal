@@ -96,7 +96,7 @@ const sendExamResults = async (req, res) => {
         const note =
           "Be reminded to pay exam money(100) by tomorrow if you have not.";
         const teacher = "Class Tr : 0796755945";
-        const msg = `${title}\nname: ${name}\nindex: ${index_no} \nMATH ${result.math} ENG ${result.eng} KIS ${result.kis} SCI ${result.sci} SST ${result.sst} \nTOTAL: ${result.total}/500\nPOSITION: ${position}/${results.length}\n${note}\n${teacher}`;
+        const msg = `${title}\nname: ${name}\nindex: ${index_no} \nMATH ${result.math} ENG ${result.eng} KIS ${result.kis} SCI ${result.sci} SST ${result.sst} \nTOTAL: ${result.total}/500\nPOSITION: ${position}/${results.length}\n${teacher}`;
         // console.log(msg);
         //send msg
         const phone = `254${contact.substring(1)}`;
