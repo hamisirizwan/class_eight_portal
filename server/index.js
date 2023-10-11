@@ -23,3 +23,8 @@ app.get("/", (req, res) => {
 app.use("/api", rootRouter);
 
 app.listen(port, () => console.log(`app running at port:${port}`));
+
+
+module.exports = {
+  app,
+};

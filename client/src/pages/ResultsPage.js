@@ -6,6 +6,8 @@ function ResultsPage() {
   const params = useParams();
   const id = params.id;
   const [results, setResults] = useState([]);
+  const [filteredResults, setFilteredResults] = useState([]);
+  const [searchField, setSearchField] = useState("");
   const [performance, setPerformance] = useState({
     math: "",
     eng: "",
@@ -18,23 +20,23 @@ function ResultsPage() {
     setPerformance({ ...performance, [e.target.name]: e.target.value });
   };
 
-  const validateFields = () => {
-    if (parseInt(performance.math) < 100 || isNaN(parseInt(performance.math))) {
-      return false;
-    }
-    if (performance.eng > 100 || isNaN(performance.eng)) {
-      return false;
-    }
-    if (performance.kis > 100 || isNaN(performance.kis)) {
-      return false;
-    }
-    if (performance.sci > 100 || isNaN(performance.sci)) {
-      return false;
-    }
-    if (performance.sst > 100 || isNaN(performance.sst)) {
-      return false;
-    }
-  };
+  // const validateFields = () => {
+  //   if (parseInt(performance.math) < 100 || isNaN(parseInt(performance.math))) {
+  //     return false;
+  //   }
+  //   if (performance.eng > 100 || isNaN(performance.eng)) {
+  //     return false;
+  //   }
+  //   if (performance.kis > 100 || isNaN(performance.kis)) {
+  //     return false;
+  //   }
+  //   if (performance.sci > 100 || isNaN(performance.sci)) {
+  //     return false;
+  //   }
+  //   if (performance.sst > 100 || isNaN(performance.sst)) {
+  //     return false;
+  //   }
+  // };
   const handleSave = async (id) => {
     // e.preventDefault();
     // const valid = validateFields();
@@ -78,6 +80,20 @@ function ResultsPage() {
   useEffect(() => {
     fetchresults();
   }, [fetchresults]);
+
+  useEffect(() => {
+    if (searchField) {
+      const filteredData = results.filter((item) => {
+        return item.pupil_id.name.toLowerCase().includes(searchField.toLowerCase());
+      });
+     
+      setFilteredResults(filteredData)
+    }else {
+      setFilteredResults(results)
+    }
+  }, [searchField, results]);
+  
+
   return (
     <div className="container-fluid">
       {/* top bar */}
@@ -90,6 +106,25 @@ function ResultsPage() {
         }}
       >
         <h5>UPLOAD RESULTS</h5>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "5vh",
+        }}
+      >
+        <input
+          type="text"
+          className="form-control"
+          id="exampleInputEmail1"
+          aria-describedby="emailHelp"
+          value={searchField}
+          onChange={(e) => setSearchField(e.target.value)}
+          required
+        />
       </div>
 
       {results.length < 1 ? (
@@ -121,7 +156,7 @@ function ResultsPage() {
               </tr>
             </thead>
             <tbody>
-              {results.map((result) => (
+              {filteredResults.map((result) => (
                 <tr key={result._id}>
                   <td>{result.pupil_id.name}</td>
                   <td>
