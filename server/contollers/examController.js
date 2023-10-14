@@ -1,7 +1,8 @@
 const Exam = require("../models/examModel");
 const Result = require("../models/resultModel");
 const Pupil = require("../models/pupilModel");
-const Utilities = require("../helpers/utilities")
+const Utilities = require("../helpers/utilities");
+const generatePDF = require("../helpers/generate_pdf");
 
 const addExam = (req, res) => {
   const title = req.body.title;
@@ -76,9 +77,84 @@ const sendCustomMessage = async (req, res)=>{
   res.status(200).json("message sent")
 }
 
+const analyseResults = async (req, res)=>{
+  try {
+    const pupils = await Pupil.find()
+    let lastExamResults = null
+
+
+    const result = []
+    for (const pupil of pupils){
+      const requiredJson = {
+        name:pupil.name,
+        indexNo:pupil.index_no,
+        contact:pupil.contact,
+        exams:[],
+        currentExamMarks:null,
+        currentExamRank:null
+      }
+      
+      
+      const exams = await Exam.find()
+ 
+      lastExamId = exams[exams.length - 1]._id
+
+      while(lastExamResults === null){
+        // console.log("running here")
+        lastExamResults = await Result.find({ exam_id: lastExamId })
+        .sort({ total: "desc" }).populate("pupil_id")
+      }
+
+      
+      for(const exam of exams) {
+        const title = exam.title.split(" ")
+        let examData = {
+          name:`${title[title.length - 2]} ${title[title.length - 1]}`,
+        }
+
+        // console.log(examData.name)
+        const results = await Result.findOne({
+          exam_id:exam._id,
+          pupil_id:pupil._id
+        })
+
+        const dataFromExam = {
+          math:results.math,
+          eng:results.eng,
+          kis:results.kis,
+          sci:results.sci,
+          sst:results.sst,
+          total:results.total
+        }
+        examData = {...examData, ...dataFromExam}
+        requiredJson.exams.push(examData)
+      }
+
+    
+      for (const result of lastExamResults) {
+        if (result.pupil_id.name === requiredJson.name) {
+          requiredJson.currentExamMarks = result.total;
+          // Calculate the current exam rank
+          const rank = lastExamResults.findIndex((r) => r.pupil_id.name === requiredJson.name) + 1;
+          const totalPupils = lastExamResults.length;
+          requiredJson.currentExamRank = `${rank}/${totalPupils}`;
+          break; // Break the loop once we find the pupil's result
+        }
+      }
+      result.push(requiredJson)
+    }
+
+   await generatePDF(result,req,res)
+    // res.json(result)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json(error.message)
+  }
+}
 
 module.exports = {
   addExam,
   getAllExams,
-  sendCustomMessage
+  sendCustomMessage,
+  analyseResults
 };

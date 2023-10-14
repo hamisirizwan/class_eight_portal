@@ -28,6 +28,7 @@ rootRouter.put("/result/:id", resultController.updateResult);
 rootRouter.get("/sendresult/:id", resultController.sendExamResults);
 rootRouter.get("/result/uncomplete/:id", resultController.getUncompleteResults);
 rootRouter.get("/bulk", resultController.bulkUpload);
+rootRouter.get("/pdf", examController.analyseResults);
 // rootRouter.get("/examresults/:id", resultController.getAllPupilNotRecorded);
 
 //RESET FUNCTION
